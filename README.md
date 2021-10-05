@@ -10,7 +10,7 @@ by adding `charon` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:charon, "~> 0.1.0"}
+    {:sphinx, "~> 0.1.0"}
   ]
 end
 ```
