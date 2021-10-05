@@ -1,11 +1,11 @@
-defmodule Charon.Fixtures do
+defmodule Sphinx.Fixtures do
   defmacro __using__(_opts) do
     quote do
-      alias Charon.Repo.IddCodes
-      alias Charon.Repo.PhoneCodes
-      alias Charon.Repo.Users
-      alias Charon.Repo.UserPhoneNumbers
-      alias Charon.Repo.UserEmails
+      alias Sphinx.Repo.IddCodes
+      alias Sphinx.Repo.PhoneCodes
+      alias Sphinx.Repo.Users
+      alias Sphinx.Repo.UserPhoneNumbers
+      alias Sphinx.Repo.UserEmails
 
       @doc ~S"""
       Creates data for `idd_codes` table

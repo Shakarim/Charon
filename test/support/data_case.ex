@@ -1,4 +1,4 @@
-defmodule Charon.DataCase do
+defmodule Sphinx.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule Charon.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use Charon.DataCase, async: true`, although
+  by setting `use Sphinx.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -21,15 +21,15 @@ defmodule Charon.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Charon.DataCase
+      import Sphinx.DataCase
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Charon.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sphinx.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Charon.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(Sphinx.Repo, {:shared, self()})
     end
 
     :ok

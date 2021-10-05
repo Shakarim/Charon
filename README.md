@@ -1,4 +1,4 @@
-# Charon
+# Sphinx
 
 **TODO: Add description**
 

@@ -1,18 +1,5 @@
-defmodule Charon do
+defmodule Sphinx do
   @moduledoc """
-  Documentation for `Charon`.
+  Documentation for `Sphinx`.
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Charon.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end

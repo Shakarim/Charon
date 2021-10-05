@@ -1,4 +1,4 @@
-defmodule Charon.MixProject do
+defmodule Sphinx.MixProject do
   use Mix.Project
 
   def project do
@@ -20,7 +20,7 @@ defmodule Charon.MixProject do
   def application do
     [
       extra_applications: [:logger, :runtime_tools],
-      mod: {Charon.Application, []}
+      mod: {Sphinx.Application, []}
     ]
   end
 
