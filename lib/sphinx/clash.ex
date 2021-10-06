@@ -58,8 +58,7 @@ defmodule Sphinx.Clash do
 
   @spec process(Atom.t, Any.t) :: Any.t
   def process(pname, answer) do
-    correct_answer = GenServer.call(pname, {:correct_answer})
-    answer_checking_result = GenServer.call(pname, {:check_answer, correct_answer, answer})
+    answer_checking_result = check_answer(pname, answer)
     GenServer.call(pname, {:add_register_item, answer_checking_result})
 
     case GenServer.call(pname, {:verdict, answer_checking_result}) do
