@@ -6,12 +6,12 @@ defmodule Sphinx.Application do
   """
 
   use Application
-#  alias Sphinx.Supervisors.SignIn
+  alias Sphinx.Moirae
 
   def start(_type, _args) do
     children = [
-      {Plug.Cowboy, scheme: :http, plug: Sphinx.Router, options: [port: 4040]},
-#      {SignIn, name: :sign_in}
+      {Plug.Cowboy, scheme: :http, plug: Sphinx.Router, options: [port: 4000]},
+      {Moirae, name: :moirae}
     ]
 
     opts = [strategy: :one_for_one, name: Sphinx.Supervisor]

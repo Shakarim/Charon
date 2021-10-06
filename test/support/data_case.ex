@@ -25,16 +25,6 @@ defmodule Sphinx.DataCase do
     end
   end
 
-  setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sphinx.Repo)
-
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Sphinx.Repo, {:shared, self()})
-    end
-
-    :ok
-  end
-
   @doc """
   A helper that transforms changeset errors into a map of messages.
 
