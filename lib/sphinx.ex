@@ -26,6 +26,6 @@ defmodule Sphinx do
   Atom generator
   """
   @spec generate_atom(Integer.t) :: Atom.t
-  def generate_atom(size \\ 16),
-       do: String.to_atom(for _ <- 1..size, into: "", do: <<Enum.random('abcdefghijklmnopqrstuvwxyz')>>)
+  @generate_atom_p 'abcdefghijklmnopqrstuvwxyz'
+  def generate_atom(size \\ 16), do: String.to_atom(for _ <- 1..size, into: "", do: <<Enum.random(@generate_atom_p)>>)
 end
