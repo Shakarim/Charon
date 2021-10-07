@@ -10,7 +10,6 @@ defmodule Sphynx.Application do
 
   def start(_type, _args) do
     children = [
-      {Plug.Cowboy, scheme: :http, plug: Sphynx.Router, options: [port: 4000]},
       {Moira, name: :moirae}
     ]
 

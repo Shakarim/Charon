@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/sphinx.iml" filepath="$PROJECT_DIR$/.idea/sphinx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Sphynx.iml" filepath="$PROJECT_DIR$/.idea/Sphynx.iml" />
     </modules>
   </component>
 </project>
