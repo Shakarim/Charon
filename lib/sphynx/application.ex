@@ -1,9 +1,7 @@
 defmodule Sphynx.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
-  @moduledoc ~S"""
-  Sphynx application module
-  """
+  @moduledoc false
 
   use Application
   alias Sphynx.Moira
