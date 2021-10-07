@@ -4,6 +4,7 @@ defmodule Sphynx.MixProject do
   def project do
     [
       app: :sphynx,
+      name: "Sphynx",
       version: "0.1.0",
       elixir: "~> 1.12",
       build_embedded: Mix.env == :prod,
@@ -12,7 +13,8 @@ defmodule Sphynx.MixProject do
       package: package(),
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      source_url: "https://github.com/Shakarim/sphynx"
     ]
   end
 
@@ -48,7 +50,7 @@ defmodule Sphynx.MixProject do
       # These are the default files included in the package
       files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE* license* CHANGELOG* changelog* src),
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/elixir-ecto/postgrex"}
+      links: %{"GitHub" => "https://github.com/Shakarim/sphynx"}
     ]
   end
 end
