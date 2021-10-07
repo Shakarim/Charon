@@ -2,7 +2,7 @@ defmodule Sphynx.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc ~S"""
-  Auth application module
+  Sphynx application module
   """
 
   use Application
