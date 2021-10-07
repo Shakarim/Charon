@@ -1,15 +1,15 @@
-defmodule Sphinx.MixProject do
+defmodule Sphynx.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :sphinx,
+      app: :sphynx,
       version: "0.1.0",
-      build_path: "./_build",
-      config_path: "./config/config.exs",
-      deps_path: "./deps",
-      lockfile: "./mix.lock",
       elixir: "~> 1.12",
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      description: description(),
+      package: package(),
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -20,7 +20,7 @@ defmodule Sphinx.MixProject do
   def application do
     [
       extra_applications: [:logger, :runtime_tools],
-      mod: {Sphinx.Application, []}
+      mod: {Sphynx.Application, []}
     ]
   end
 
@@ -35,6 +35,20 @@ defmodule Sphinx.MixProject do
       {:ecto_sql, "~> 3.4"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"}
+    ]
+  end
+
+  @spec description() :: String.t
+  defp description(),
+       do: "Question-answer based queue for a convenient manage step-by-step execution of business logic"
+
+  @spec package() :: List.t
+  defp package() do
+    [
+      # These are the default files included in the package
+      files: ~w(lib priv .formatter.exs mix.exs README* readme* LICENSE* license* CHANGELOG* changelog* src),
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/elixir-ecto/postgrex"}
     ]
   end
 end

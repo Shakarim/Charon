@@ -1,6 +1,6 @@
-defmodule Sphinx.Router do
+defmodule Sphynx.Router do
   @moduledoc ~S"""
-  Router for `sphinx` application
+  Router for `sphynx` application
   """
   alias Plug.Conn
   use Plug.Router

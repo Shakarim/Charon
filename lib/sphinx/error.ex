@@ -1,3 +1,3 @@
-defmodule Sphinx.Error do
-  defexception message: "unknown sphinx application error"
+defmodule Sphynx.Error do
+  defexception message: "unknown sphynx application error"
 end

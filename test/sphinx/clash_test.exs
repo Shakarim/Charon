@@ -1,11 +1,11 @@
-defmodule Sphinx.ClashTest do
+defmodule Sphynx.ClashTest do
   use ExUnit.Case
-  alias Sphinx.Clash
-  alias Sphinx.Moirae
-  alias Sphinx.Error
+  alias Sphynx.Clash
+  alias Sphynx.Moira
+  alias Sphynx.Error
 
   defmodule Sms do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def answer(%__MODULE__{}), do: :sms_riddle_answer
 
@@ -18,7 +18,7 @@ defmodule Sphinx.ClashTest do
   end
 
   defmodule Login do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def answer(%__MODULE__{}) do
       :login_riddle_answer
@@ -45,7 +45,7 @@ defmodule Sphinx.ClashTest do
   end
 
   defmodule InvalidModule do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def make(%__MODULE__{}), do: :wrong_make
 
@@ -59,7 +59,7 @@ defmodule Sphinx.ClashTest do
   end
 
   defmodule BreakTestModule do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def answer(%__MODULE__{}), do: :btm_riddle_answer
 
@@ -75,7 +75,7 @@ defmodule Sphinx.ClashTest do
 
   describe "`identity/1` |" do
     test "test exist clash" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
 
       assert is_atom(Clash.identity(pid))
     end
@@ -89,7 +89,7 @@ defmodule Sphinx.ClashTest do
 
   describe "`lookup/1` |" do
     test "test exist clash" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
 
       assert Clash.lookup(identity)
@@ -102,7 +102,7 @@ defmodule Sphinx.ClashTest do
 
   describe "`make_riddle/2` |" do
     test "test valid module" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Sms.create(%{}, [])
 
@@ -110,7 +110,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test invalid module" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.InvalidModule.create(%{}, [])
 
@@ -120,7 +120,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test map" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
 
       assert_raise KeyError, fn ->
@@ -131,7 +131,7 @@ defmodule Sphinx.ClashTest do
 
   describe "`check_answer/2` |" do
     test "test exist clash" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Sms.create(%{}, [])
       Clash.make_riddle(identity, riddle)
@@ -141,7 +141,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test not exist clash" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Sms.create(%{}, [])
       Clash.make_riddle(identity, riddle)
@@ -153,7 +153,7 @@ defmodule Sphinx.ClashTest do
 
   describe "`process/2` |" do
     test "test one step reply, valid answer" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Sms.create(%{}, [])
       Clash.make_riddle(identity, riddle)
@@ -162,7 +162,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test one step reply, invalid answer" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Sms.create(%{}, [])
       Clash.make_riddle(identity, riddle)
@@ -171,7 +171,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test multi step reply, valid reply" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Login.create(%{}, [])
       Clash.make_riddle(identity, riddle)
@@ -185,7 +185,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test multi step reply, invalid first reply" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Login.create(%{}, [])
       Clash.make_riddle(identity, riddle)
@@ -196,7 +196,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test multi step reply, invalid second reply" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.Login.create(%{}, [])
       Clash.make_riddle(identity, riddle)
@@ -210,7 +210,7 @@ defmodule Sphinx.ClashTest do
     end
 
     test "test break" do
-      {:ok, pid} = Moirae.start_clash(:moirae)
+      {:ok, pid} = Moira.start_clash(:moirae)
       identity = Clash.identity(pid)
       riddle = __MODULE__.BreakTestModule.create(%{}, [])
       Clash.make_riddle(identity, riddle)

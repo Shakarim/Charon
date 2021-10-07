@@ -1,10 +1,10 @@
-defmodule Sphinx.Moirae do
+defmodule Sphynx.Moira do
   @moduledoc ~S"""
-  Main module, creates the clashes with sphinx.
+  Main module, creates the clashes with sphynx.
   """
   use DynamicSupervisor
-  alias Sphinx.Clash
-  import Sphinx, only: [generate_atom: 0]
+  alias Sphynx.Clash
+  import Sphynx, only: [generate_atom: 0]
 
   # ====================
   #  DEFAULT FUN

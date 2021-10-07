@@ -1,10 +1,10 @@
-defmodule Sphinx.Riddle do
+defmodule Sphynx.Riddle do
   @moduledoc ~S"""
   Main module for making riddles
   """
 
   @typedoc ~S"""
-  A custom module of user which implement `Sphinx.Riddle`
+  A custom module of user which implement `Sphynx.Riddle`
   """
   @type user_module() :: %{
                            options: Keyword.t,
@@ -37,7 +37,7 @@ defmodule Sphinx.Riddle do
 
   Args
 
-    * riddle - user module, `Sphinx.Riddle` implementation
+    * riddle - user module, `Sphynx.Riddle` implementation
 
   Returns self
 
@@ -49,7 +49,7 @@ defmodule Sphinx.Riddle do
 
   Args:
 
-    * riddle - user module, `Sphinx.Riddle` implementation
+    * riddle - user module, `Sphynx.Riddle` implementation
     * actual_answer - answer, returned by user module or actual in struct
     * answer - the received answer that we have to check
 
@@ -61,7 +61,7 @@ defmodule Sphinx.Riddle do
 
   Args:
 
-    * riddle - user module, `Sphinx.Riddle` implementation
+    * riddle - user module, `Sphynx.Riddle` implementation
     * result - result of calling `check/3` function
 
   Returns:
@@ -78,7 +78,7 @@ defmodule Sphinx.Riddle do
 
   defmacro __using__(_args) do
     quote do
-      @behaviour Sphinx.Riddle
+      @behaviour Sphynx.Riddle
 
       defstruct options: [],
                 register: [],
@@ -94,8 +94,8 @@ defmodule Sphinx.Riddle do
       def create(context \\ %{}, options \\ [])
       def create(context, options) do
         %__MODULE__{register: []}
-        |> Sphinx.Riddle.put_options(options)
-        |> Sphinx.Riddle.put_context(context)
+        |> Sphynx.Riddle.put_options(options)
+        |> Sphynx.Riddle.put_context(context)
       end
     end
   end

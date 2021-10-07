@@ -1,4 +1,4 @@
-defmodule Sphinx.Application do
+defmodule Sphynx.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc ~S"""
@@ -6,15 +6,15 @@ defmodule Sphinx.Application do
   """
 
   use Application
-  alias Sphinx.Moirae
+  alias Sphynx.Moira
 
   def start(_type, _args) do
     children = [
-      {Plug.Cowboy, scheme: :http, plug: Sphinx.Router, options: [port: 4000]},
-      {Moirae, name: :moirae}
+      {Plug.Cowboy, scheme: :http, plug: Sphynx.Router, options: [port: 4000]},
+      {Moira, name: :moirae}
     ]
 
-    opts = [strategy: :one_for_one, name: Sphinx.Supervisor]
+    opts = [strategy: :one_for_one, name: Sphynx.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

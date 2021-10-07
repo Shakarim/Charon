@@ -1,8 +1,8 @@
-defmodule Sphinx.Clash do
+defmodule Sphynx.Clash do
   use GenServer
-  alias Sphinx.Riddle
-  alias Sphinx.Error
-  import Sphinx, only: [end_game: 2]
+  alias Sphynx.Riddle
+  alias Sphynx.Error
+  import Sphynx, only: [end_game: 2]
 
   defstruct parent: nil,
             identity: nil,
@@ -45,7 +45,7 @@ defmodule Sphinx.Clash do
     if is_equal_structs?(user_riddle, updated_riddle) do
       GenServer.cast(pname, {:make_riddle, updated_riddle})
     else
-      message = "received value is not a valid riddle, check your #{user_riddle.__struct__}.make/1 function, it have to return `Sphinx.Riddle` implementation (got: #{inspect(updated_riddle)})"
+      message = "received value is not a valid riddle, check your #{user_riddle.__struct__}.make/1 function, it have to return `Sphynx.Riddle` implementation (got: #{inspect(updated_riddle)})"
       raise(Error, message: message)
     end
   end

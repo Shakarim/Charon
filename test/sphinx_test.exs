@@ -1,12 +1,12 @@
-defmodule SphinxTest do
+defmodule SphynxTest do
   use ExUnit.Case
-  alias Sphinx
-  alias Sphinx.Clash
-  alias Sphinx.Moirae
-  doctest Sphinx
+  alias Sphynx
+  alias Sphynx.Clash
+  alias Sphynx.Moira
+  doctest Sphynx
 
   defmodule Sms do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def answer(%__MODULE__{}) do
       :sms_riddle_answer
@@ -30,7 +30,7 @@ defmodule SphinxTest do
   end
 
   defmodule Login do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def answer(%__MODULE__{}) do
       :login_riddle_answer
@@ -57,7 +57,7 @@ defmodule SphinxTest do
   end
 
   defmodule InvalidModule do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def make(%__MODULE__{}), do: :wrong_make
 
@@ -71,7 +71,7 @@ defmodule SphinxTest do
   end
 
   defmodule BreakTestModule do
-    use Sphinx.Riddle
+    use Sphynx.Riddle
 
     def answer(%__MODULE__{}), do: :btm_riddle_answer
 
@@ -116,7 +116,7 @@ defmodule SphinxTest do
 
 
   test "`generate_atom/1`" do
-    value = Sphinx.generate_atom()
+    value = Sphynx.generate_atom()
 
     assert is_atom(value)
   end
@@ -134,8 +134,8 @@ defmodule SphinxTest do
   end
 
   test "`start_game/1`", %{sms_riddle: sms_riddle} do
-    starting_result = Sphinx.start_game(sms_riddle)
-    all_clashes = Moirae.get_clashes(:moirae)
+    starting_result = Sphynx.start_game(sms_riddle)
+    all_clashes = Moira.get_clashes(:moirae)
     clash = Clash.lookup(starting_result)
 
     assert is_atom(starting_result)
@@ -144,17 +144,17 @@ defmodule SphinxTest do
   end
 
   test "`end_game/1`", %{sms_riddle: sms_riddle} do
-    created_clash_identity = Sphinx.start_game(sms_riddle)
+    created_clash_identity = Sphynx.start_game(sms_riddle)
 
     clash = Clash.lookup(created_clash_identity)
-    old_clashes_list = Moirae.get_clashes(:moirae)
+    old_clashes_list = Moira.get_clashes(:moirae)
 
     assert is_atom(created_clash_identity)
     assert match?(%Clash{}, clash)
     assert clash in old_clashes_list
 
-    ending_result = Sphinx.end_game(created_clash_identity)
-    new_clashes_list = Moirae.get_clashes(:moirae)
+    ending_result = Sphynx.end_game(created_clash_identity)
+    new_clashes_list = Moira.get_clashes(:moirae)
     new_clash = Clash.lookup(created_clash_identity)
 
     assert ending_result === :ok
@@ -164,29 +164,29 @@ defmodule SphinxTest do
 
   describe "`reply/2` |" do
     test "test invalid module", %{invalid_riddle: invalid_riddle} do
-      assert_raise Sphinx.Error, fn ->
-        Sphinx.start_game(invalid_riddle)
+      assert_raise Sphynx.Error, fn ->
+        Sphynx.start_game(invalid_riddle)
       end
     end
 
     test "test one step reply, valid answer", %{sms_riddle: sms_riddle} do
-      clash_identity = Sphinx.start_game(sms_riddle)
-      answer_result = Sphinx.reply(clash_identity, :sms_riddle_answer)
+      clash_identity = Sphynx.start_game(sms_riddle)
+      answer_result = Sphynx.reply(clash_identity, :sms_riddle_answer)
 
       assert answer_result === {:ok, :valid}
     end
 
     test "test one step reply, invalid answer", %{sms_riddle: sms_riddle} do
-      clash_identity = Sphinx.start_game(sms_riddle)
-      answer_result = Sphinx.reply(clash_identity, :wrong)
+      clash_identity = Sphynx.start_game(sms_riddle)
+      answer_result = Sphynx.reply(clash_identity, :wrong)
 
       assert answer_result === {:ok, :invalid}
     end
 
     test "test multi step reply, valid reply", %{login_riddle: login_riddle} do
-      clash_identity = Sphinx.start_game(login_riddle)
-      login_answer_result = Sphinx.reply(clash_identity, :login_riddle_answer)
-      sms_answer_result = Sphinx.reply(clash_identity, :sms_riddle_answer)
+      clash_identity = Sphynx.start_game(login_riddle)
+      login_answer_result = Sphynx.reply(clash_identity, :login_riddle_answer)
+      sms_answer_result = Sphynx.reply(clash_identity, :sms_riddle_answer)
 
 
       assert match?(%__MODULE__.Login{}, login_riddle)
@@ -195,8 +195,8 @@ defmodule SphinxTest do
     end
 
     test "test multi step reply, invalid first reply", %{login_riddle: login_riddle} do
-      clash_identity = Sphinx.start_game(login_riddle)
-      login_answer_result = Sphinx.reply(clash_identity, :wrong)
+      clash_identity = Sphynx.start_game(login_riddle)
+      login_answer_result = Sphynx.reply(clash_identity, :wrong)
       actual_riddle = Clash.lookup(clash_identity)
 
       assert match?(%__MODULE__.Login{}, login_riddle)
@@ -205,9 +205,9 @@ defmodule SphinxTest do
     end
 
     test "test multi step reply, invalid second reply", %{login_riddle: login_riddle} do
-      clash_identity = Sphinx.start_game(login_riddle)
-      login_answer_result = Sphinx.reply(clash_identity, :login_riddle_answer)
-      sms_answer_result = Sphinx.reply(clash_identity, :wrong)
+      clash_identity = Sphynx.start_game(login_riddle)
+      login_answer_result = Sphynx.reply(clash_identity, :login_riddle_answer)
+      sms_answer_result = Sphynx.reply(clash_identity, :wrong)
 
 
       assert match?(%__MODULE__.Login{}, login_riddle)
@@ -217,8 +217,8 @@ defmodule SphinxTest do
 
     test "test break" do
       riddle = __MODULE__.BreakTestModule.create(%{}, [])
-      clash_identity = Sphinx.start_game(riddle)
-      reply_result = Sphinx.reply(clash_identity, :invalid_answer)
+      clash_identity = Sphynx.start_game(riddle)
+      reply_result = Sphynx.reply(clash_identity, :invalid_answer)
       clash = Clash.lookup(clash_identity)
 
       assert match?(%__MODULE__.BreakTestModule{}, riddle)
