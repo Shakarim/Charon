@@ -1,4 +1,4 @@
-# Sphinx
+# Sphynx
 
 **TODO: Add description**
 
