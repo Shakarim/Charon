@@ -61,7 +61,7 @@ defmodule SphynxTest do
 
     def make(%__MODULE__{}), do: :wrong_make
 
-    def answer(%__MODULE__{}), do: :btm_riddle_answer
+    def answer(%__MODULE__{}), do: :itm_riddle_answer
 
     def check(%__MODULE__{}, correct_answer, user_answer), do: correct_answer === user_answer
 
