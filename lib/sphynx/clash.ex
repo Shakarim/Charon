@@ -46,7 +46,7 @@ defmodule Sphynx.Clash do
 
 
   """
-  @spec make_riddle(atom(), Any.t) :: :ok
+  @spec make_riddle(atom(), any()) :: :ok
   def make_riddle(pname, user_riddle) do
     updated_riddle = apply(user_riddle.__struct__, :make, [user_riddle])
     if is_equal_structs?(user_riddle, updated_riddle) do
@@ -57,13 +57,13 @@ defmodule Sphynx.Clash do
     end
   end
 
-  @spec check_answer(atom(), Any.t) :: Any.t
+  @spec check_answer(atom(), any()) :: any()
   def check_answer(pname, answer) do
     correct_answer = GenServer.call(pname, {:correct_answer})
     GenServer.call(pname, {:check_answer, correct_answer, answer})
   end
 
-  @spec process(atom(), Any.t) :: Any.t
+  @spec process(atom(), any()) :: any()
   def process(pname, answer) do
     answer_checking_result = check_answer(pname, answer)
     GenServer.call(pname, {:add_register_item, answer_checking_result})
@@ -125,7 +125,7 @@ defmodule Sphynx.Clash do
   #  HELPERS
   # ====================
 
-  @spec is_equal_structs?(Any.t, Any.t) :: boolean()
+  @spec is_equal_structs?(any(), any()) :: boolean()
   defp is_equal_structs?(first, second) when is_map(first) and is_map(second) do
     Map.get(first, :__struct__) === Map.get(second, :__struct__)
   end

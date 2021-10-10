@@ -205,7 +205,13 @@ defmodule Sphynx do
     @type t :: %__MODULE__{message: String.t()}
   end
 
-  @spec start_game(Any.t) :: atom()
+  @doc ~S"""
+  Starting the game. This functions register new `Sphynx.Clash` with received `Sphynx.Riddle` implementation
+  under `Sphynx.Moira` supervising.
+
+  Returns atom with unique id of game, which can be used in game process
+  """
+  @spec start_game(any()) :: atom()
   def start_game(riddle_module) do
     case Moira.start_clash(:moirae) do
       {:ok, pid} ->
@@ -215,16 +221,45 @@ defmodule Sphynx do
     end
   end
 
-  @spec end_game(atom(), Any.t) :: Any.t
-  def end_game(identity, default \\ :terminate_result), do: Moira.end_clash(:moirae, identity, default)
+  @doc ~S"""
+  Ends game by his identity atom.
 
-  @spec reply(atom(), Any.t) :: Any.t
+  ## Arguments
+
+    1. Atom identity of game.
+
+    2. Return value for success complete. By default will be returned result of termination, otherwise (if
+    termination has been completed correctly) gonna be return this argument.
+
+  """
+  @spec end_game(atom(), any()) :: any()
+  def end_game(identity, return \\ :terminate_result), do: Moira.end_clash(:moirae, identity, return)
+
+  @doc ~S"""
+  Function for processing the game.
+
+  Receives game identity and answer for checking
+
+  ## Arguments
+
+    1. Game identity atom. Atom, which been got, when you had called `Sphynx.start_game/1`
+
+    2. Supposed answer to question. Can be any type.
+
+  """
+  @spec reply(atom(), any()) :: any()
   def reply(identity, answer), do: Clash.process(identity, answer)
 
   @doc ~S"""
-  Atom generator
+  Atom generator. By default generates atom with 16 digits, but size is a parameter, so can be changed.
+
+  ## Arguments
+
+    1. Atom size. By default equal 16, receives integers only
+
   """
   @spec generate_atom(integer()) :: atom()
   @generate_atom_p 'abcdefghijklmnopqrstuvwxyz'
-  def generate_atom(size \\ 16), do: String.to_atom(for _ <- 1..size, into: "", do: <<Enum.random(@generate_atom_p)>>)
+  def generate_atom(size \\ 16) when is_integer(size),
+      do: String.to_atom(for _ <- 1..size, into: "", do: <<Enum.random(@generate_atom_p)>>)
 end

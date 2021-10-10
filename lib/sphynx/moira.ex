@@ -38,7 +38,7 @@ defmodule Sphynx.Moira do
   @doc ~S"""
   Ends clash by his name
   """
-  @spec end_clash(atom(), atom(), Any.t) :: Any.t
+  @spec end_clash(atom(), atom(), any()) :: any()
   def end_clash(moirae_pname, clash_pname, return \\ :terminate_result) do
     find_pid_by_name(moirae_pname, clash_pname)
     |> case do
