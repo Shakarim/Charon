@@ -50,60 +50,23 @@ defmodule Sphynx.Riddle do
   """
 
   @typedoc ~S"""
-  A custom module of user which implement `Sphynx.Riddle`
+  A struct for user module which implement `Sphynx.Riddle`
   """
-  @type user_module() :: %{
+  @type t() :: %{
                            options: Keyword.t,
-                           register: List.t,
+                           register: list(),
                            context: any()
                          }
 
-  @doc """
-  Returns answer for riddle. Will be called when user
-  gonna try to check his answer.
-  """
-  @callback answer(user_module()) :: any()
-
-  @doc ~S"""
-  Checking answer for current riddle
-
-  Args:
-
-    * riddle - user module, `Sphynx.Riddle` implementation
-    * actual_answer - answer, returned by user module or actual in struct
-    * answer - the received answer that we have to check
-
-  """
-  @callback check(user_module(), any(), any()) :: any()
-
-  @doc ~S"""
-  Handles result of checking answer to riddle
-
-  Args:
-
-    * riddle - user module, `Sphynx.Riddle` implementation
-    * result - result of calling `check/3` function
-
-  Returns:
-
-    * if result is {:proceed, user_module()} - gonna ge started new riddle
-    * if result is {:break, _} - clash gonna be stopped
-    * if result has another data - this another data will be returned
-
-  """
-  @callback verdict(user_module(), any()) :: any()
-
   defmacro __using__(_args) do
     quote do
-      @behaviour Sphynx.Riddle
-
       defstruct options: [],
                 register: [],
                 context: %{}
 
       @type t() :: %__MODULE__{
                      options: Keyword.t,
-                     register: List.t,
+                     register: list(),
                      context: any()
                    }
 
@@ -112,6 +75,57 @@ defmodule Sphynx.Riddle do
       """
       @spec init(Keyword.t) :: Keyword.t
       def init(options), do: options
+
+      @doc ~S"""
+      Returns correctly answer for riddle. Will be called when user gonna try to check his answer.
+
+      Result of this function gonna be second argument of `check/3`
+
+      ## Arguments
+
+        * riddle - custom user riddle module
+
+      """
+      @spec answer(__MODULE__.t) :: any()
+      def answer(_), do: raise(Sphynx.RiddleDefiningError.new(module: __MODULE__, function: :answer))
+
+      @doc ~S"""
+      Checking answer for current riddle.
+
+      Data, which been returned by this function will be a second argument for `verdict/2` callback.
+
+      ## Arguments
+
+        * riddle - user module, `Sphynx.Riddle` implementation
+
+        * actual_answer - answer, returned by user module or actual in struct
+
+        * answer - the received answer that we have to check
+
+      """
+      @spec check(__MODULE__.t, any(), any()) :: any()
+      def check(%__MODULE__{}, _, _), do: raise(Sphynx.RiddleDefiningError.new(module: __MODULE__, function: :check))
+
+      @doc ~S"""
+      Handles result of checking answer to riddle
+
+      ## Arguments
+
+        * riddle - user module, `Sphynx.Riddle` implementation
+
+        * result - result of calling `check/3` function
+
+       ## Possibly Returns
+
+        * if result is {:proceed, current_module} - gonna ge started new riddle
+
+        * if result is {:break, _} - clash gonna be stopped
+
+        * if result has another data - this another data will be returned
+
+      """
+      @spec verdict(__MODULE__.t, any()) :: any()
+      def verdict(%__MODULE__{}, _), do: raise(Sphynx.RiddleDefiningError.new(module: __MODULE__, function: :verdict))
 
       @doc """
       Returns context for riddle. This function will be
@@ -122,9 +136,15 @@ defmodule Sphynx.Riddle do
       @spec context(map()) :: map()
       def context(%{} = context), do: context
 
+      @doc ~S"""
+      Function which calls when new game with current riddle has been started
+      """
       @spec make(__MODULE__.t) :: __MODULE__.t
       def make(%__MODULE__{} = module), do: module
 
+      @doc ~S"""
+      Function for creating the new riddle from module implementation
+      """
       @spec create(any(), Keyword.t) :: __MODULE__.t
       def create(context \\ %{}, options \\ [])
       def create(context, options) do
@@ -133,28 +153,52 @@ defmodule Sphynx.Riddle do
         |> Sphynx.Riddle.put_context(context)
       end
 
+      # overridable functions
       defoverridable init: 1,
                      context: 1,
-                     make: 1
+                     make: 1,
+                     answer: 1,
+                     check: 3,
+                     verdict: 2
     end
   end
 
 
   @doc ~S"""
   Function for putting custom context data
+
+  This function calls `context/1` of received riddle and pass exist `context` to it. Result are the data,
+  which will been putted into `:context` field of current riddle.
+
+  ## Arguments
+
+    1. User module with implementation of `Sphynx.Riddle`
+
+    2. Data, which will been sent as argument into `context/1` function of `riddle`
+
   """
-  @spec put_context(user_module(), any()) :: user_module()
-  def put_context(user_module, context) do
-    context = apply(user_module.__struct__, :context, [context])
-    %{user_module | context: context}
+  @spec put_context(t(), any()) :: t()
+  def put_context(riddle, context) do
+    context = apply(riddle.__struct__, :context, [context])
+    %{riddle | context: context}
   end
 
   @doc ~S"""
-  Function for putting user options
+  Function for putting options of riddle instance
+
+  This function calls `init/1` of received riddle and pass exist `options` to it. Result are the data,
+  which will been putted into `:options` field of current riddle.
+
+  ## Arguments
+
+    1. User module with implementation of `Sphynx.Riddle`
+
+    2. Data, which will been sent as argument into `init/1` function of `riddle`
+
   """
-  @spec put_options(user_module(), Map.t) :: user_module()
-  def put_options(user_module, options) do
-    options = apply(user_module.__struct__, :init, [options])
-    %{user_module | options: options}
+  @spec put_options(t(), map()) :: t()
+  def put_options(riddle, options) do
+    options = apply(riddle.__struct__, :init, [options])
+    %{riddle | options: options}
   end
 end
