@@ -14,16 +14,11 @@ defmodule Sphynx.Moira do
   @spec init(Keyword.t) :: Keyword.t
   def init(args), do: DynamicSupervisor.init(strategy: :one_for_one, extra_arguments: [args])
 
-  @impl true
   @spec start_link(Keyword.t) :: pid()
   def start_link(args) do
     name = Keyword.get(args, :name) || __MODULE__
     DynamicSupervisor.start_link(__MODULE__, args, name: name)
   end
-
-  @impl true
-  @spec child_spec(Keyword.t) :: Map.t
-  def child_spec(args), do: %{id: __MODULE__, start: {__MODULE__, :start_link, [args]}}
 
   # ====================
   #  CLIENT API
