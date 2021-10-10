@@ -1,5 +1,5 @@
 defmodule Sphynx do
-  @moduledoc """
+  @moduledoc ~S"""
   `Sphynx` is a small and simple library which grants GenServer based question-answer service.
 
   For simpilicity logic of this service, I was cover modules and mechanisms into clear concepts and analogies.
@@ -33,7 +33,7 @@ defmodule Sphynx do
   The Riddle is a module which implements (use) `Sphynx.Riddle` and realize basic functions for making riddle,
   checking result, delivery of a verdict and etc.
 
-  ## Moirae
+  ## Moira
 
   Every game should have referee. In `Sphynx` it is a `Sphynx.Moira`.
 
@@ -54,15 +54,11 @@ defmodule Sphynx do
   is atom). Let's imagine that you've received `:bestgameever` value.
   Fine. From now on, your game registered in system and waits for your answer.
 
-  3. The playing. To move on, you have to send answer and system will decide what it would do next.
-
-  For doing that you have to call `Sphynx.reply/2`, as example: `Sphynx.reply(:bestgameever, "my_answer").
-
-  If verdict by your riddle gonna have a specific pattern - game can be continued with new riddle, or completed
-  with returning of result to guessing man.
-
-  If you wanna stop exist game, you can just call `Sphynx.end_game/1` or `Sphynx.end_game/2`. And game will
-  be stopped.
+  3. The playing. To move on, you have to send answer and system will decide what it would do next. For doing
+  that you have to call `Sphynx.reply/2`, as example: `Sphynx.reply(:bestgameever, "my_answer")`. If verdict
+  by your riddle gonna have a specific pattern - game can be continued with new riddle, or completed with
+  returning of result to guessing man. If you wanna stop exist game, you can just call `Sphynx.end_game/1`
+  or `Sphynx.end_game/2`. And game will be stopped.
 
   ## Cases
 
@@ -70,14 +66,20 @@ defmodule Sphynx do
 
   ### Authentication systems.
   Actually, idea for making this library has come when I've been writing the regular authentication code (I'm sure,
-  you know how boring process is it, they all have the same logic, small detaild different only).
+  you know how boring process is it, they all have the same logic, small details different only).
 
   Solution for Login-Pass would looks like:
 
-  You have to implement `Sphynx.Riddle.answer/1` of your riddle module with returning the password hash of your
+  You have to implement `answer/1` of your riddle module with returning the password hash of your
   user (will assume, that your user data or schema located in `:context` of your riddle):
 
-      def answer(%MyRiddle{context: %{user: %Users{password_hash: password_hash}}}), do: password_hash
+      defmodule MyRiddle do
+        use Sphynx.Riddle
+        ...
+        # result of this function will be redirected to `check/3` as second argument
+        def answer(%MyRiddle{context: %{user: %Users{password_hash: password_hash}}}), do: password_hash
+        ...
+      end
 
   Setting the context of your riddle can be executed before game start. Like an:
 
@@ -86,26 +88,47 @@ defmodule Sphynx do
       riddle = MyRiddle.create(%{user: user})
       Sphynx.start_game(riddle)
 
-  Your `Sphynx.Riddle.check/3` have to be implemented like:
+  by the way, you can change current riddle context after game start (when `make/1` gonna called) via:
 
-      # result of this function will be redirected to `verdict/2` as second argument
-      def check(%MyRiddle{}, result_of_answer_fun, user_assumption) do
-        # we got `result_of_answer_fun` from `answer/1`
-        if result_of_answer_fun === MyAuthModule.hash_password(user_assumption),
-          do: :valid,
-          else: :invalid
+      defmodule MyRiddle do
+        use Sphynx.Riddle
+        ...
+        def make(%MyRiddle{context: context} = my_riddle) do
+          %{my_riddle | context: %{my_new_context_key: "my_new_context_value"}}
+        end
+        ...
+      end
+
+  Your `check/3` have to be implemented like:
+
+      defmodule MyRiddle do
+        use Sphynx.Riddle
+        ...
+        # result of this function will be redirected to `verdict/2` as second argument
+        def check(%MyRiddle{}, result_of_answer_fun, user_assumption) do
+          # we got `result_of_answer_fun` from `answer/1`
+          if result_of_answer_fun === MyAuthModule.hash_password(user_assumption),
+            do: :valid,
+            else: :invalid
+        end
+        ...
       end
 
   And `verdict/2` have to looks like this:
 
-      # `result` is a value, which been returned by `check/3`
-      def verdict(%MyRiddle{context: %{user: user}}, result) when result === true do
-        {:ok, generate_user_access_token!(user)}
-      end
-      def verdict(%MyRiddle{}, result) when result === false do
-        # this is one of "specific" patterns, it means that game will be stopped
-        result = {:error, "invalid password"}
-        {:break, result}
+      defmodule MyRiddle do
+        use Sphynx.Riddle
+        ...
+        # `result` is a value, which been returned by `check/3`
+        def verdict(%MyRiddle{context: %{user: user}}, result) when result === :valid do
+          {:ok, generate_user_access_token!(user)}
+        end
+        def verdict(%MyRiddle{}, result) when result === :invalid do
+          # this is one of "specific" patterns, it means that game will be stopped
+          result = {:error, "invalid password"}
+          {:break, result}
+        end
+        ...
       end
 
   So how will it work. When user gonna enter his login into your system (and this username found in database)
@@ -151,7 +174,38 @@ defmodule Sphynx do
   alias Sphynx.Moira
   alias Sphynx.Clash
 
-  @spec start_game(Any.t) :: Atom.t
+  defmodule RiddleDefiningError do
+    @moduledoc ~S"""
+    Error for errors of riddle definition
+    """
+
+    @message "you have got error in your riddle `%{module}`"
+    @module :undefined_riddle
+    @function :undefined_function
+
+    defexception message: @message
+
+    @spec new(Keyword.t) :: String.t
+    def new(keyword) do
+      module = Keyword.get(keyword, :module, @module)
+               |> Atom.to_string()
+               |> String.replace("Elixir.", "")
+      function = Keyword.get(keyword, :function, @function)
+               |> Atom.to_string()
+               |> String.replace("Elixir.", "")
+
+      "you have got error in `%{function}` of your riddle `%{module}`, make sure that it was imeplemented correctly"
+      |> String.replace("%{module}", module)
+      |> String.replace("%{function}", function)
+    end
+
+    @typedoc ~S"""
+    Struct of error, which raises when riddle are defined incorrect
+    """
+    @type t :: %__MODULE__{message: String.t()}
+  end
+
+  @spec start_game(Any.t) :: atom()
   def start_game(riddle_module) do
     case Moira.start_clash(:moirae) do
       {:ok, pid} ->
@@ -161,16 +215,16 @@ defmodule Sphynx do
     end
   end
 
-  @spec end_game(Atom.t, Any.t) :: Any.t
+  @spec end_game(atom(), Any.t) :: Any.t
   def end_game(identity, default \\ :terminate_result), do: Moira.end_clash(:moirae, identity, default)
 
-  @spec reply(Atom.t, Any.t) :: Any.t
+  @spec reply(atom(), Any.t) :: Any.t
   def reply(identity, answer), do: Clash.process(identity, answer)
 
   @doc ~S"""
   Atom generator
   """
-  @spec generate_atom(Integer.t) :: Atom.t
+  @spec generate_atom(integer()) :: atom()
   @generate_atom_p 'abcdefghijklmnopqrstuvwxyz'
   def generate_atom(size \\ 16), do: String.to_atom(for _ <- 1..size, into: "", do: <<Enum.random(@generate_atom_p)>>)
 end
