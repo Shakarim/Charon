@@ -1,6 +1,5 @@
 defmodule Sphynx.Clash do
   use GenServer
-  alias Sphynx.Riddle
   alias Sphynx.Error
   import Sphynx, only: [end_game: 2]
 
@@ -9,9 +8,9 @@ defmodule Sphynx.Clash do
             current_riddle: nil
 
   @type t() :: %__MODULE__{
-                 parent: Atom.t,
-                 identity: Atom.t,
-                 current_riddle: Riddle.t
+                 parent: atom(),
+                 identity: atom(),
+                 current_riddle: any()
                }
 
   # ====================
@@ -39,7 +38,7 @@ defmodule Sphynx.Clash do
   @doc ~S"""
   Returns identity of clash by his pid
   """
-  @spec identity(pid()) :: Atom.t
+  @spec identity(pid()) :: atom()
   def identity(pid), do: GenServer.call(pid, {:identity})
 
   @doc ~S"""
@@ -47,7 +46,7 @@ defmodule Sphynx.Clash do
 
 
   """
-  @spec make_riddle(Atom.t, Any.t) :: :ok
+  @spec make_riddle(atom(), Any.t) :: :ok
   def make_riddle(pname, user_riddle) do
     updated_riddle = apply(user_riddle.__struct__, :make, [user_riddle])
     if is_equal_structs?(user_riddle, updated_riddle) do
@@ -58,13 +57,13 @@ defmodule Sphynx.Clash do
     end
   end
 
-  @spec check_answer(Atom.t, Any.t) :: Any.t
+  @spec check_answer(atom(), Any.t) :: Any.t
   def check_answer(pname, answer) do
     correct_answer = GenServer.call(pname, {:correct_answer})
     GenServer.call(pname, {:check_answer, correct_answer, answer})
   end
 
-  @spec process(Atom.t, Any.t) :: Any.t
+  @spec process(atom(), Any.t) :: Any.t
   def process(pname, answer) do
     answer_checking_result = check_answer(pname, answer)
     GenServer.call(pname, {:add_register_item, answer_checking_result})
@@ -80,7 +79,7 @@ defmodule Sphynx.Clash do
     end
   end
 
-  @spec lookup(Atom.t) :: __MODULE__.t
+  @spec lookup(atom()) :: __MODULE__.t
   def lookup(pname) do
     try do
       GenServer.call(pname, {:lookup})
@@ -103,37 +102,21 @@ defmodule Sphynx.Clash do
   @impl true
   def handle_call({:identity}, _caller, %__MODULE__{identity: identity} = state), do: {:reply, identity, state}
   def handle_call({:correct_answer}, _caller, %__MODULE__{current_riddle: user_riddle} = state) do
-    try do
-      result = apply(user_riddle.__struct__, :answer, [user_riddle])
-      {:reply, result, state}
-    rescue
-      e -> {:stop, "error of calling `answer/1`: #{inspect(e)}", state, state}
-    end
+    result = apply(user_riddle.__struct__, :answer, [user_riddle])
+    {:reply, result, state}
   end
   def handle_call({:check_answer, correct_answer, answer}, _caller, %__MODULE__{current_riddle: user_riddle} = state) do
-    try do
-      result = apply(user_riddle.__struct__, :check, [user_riddle, correct_answer, answer])
-      {:reply, result, state}
-    rescue
-      e -> {:stop, "error of calling `check/3`: #{inspect(e)}", state, state}
-    end
+    result = apply(user_riddle.__struct__, :check, [user_riddle, correct_answer, answer])
+    {:reply, result, state}
   end
   def handle_call({:add_register_item, data}, _caller, %__MODULE__{current_riddle: %_{} = riddle} = state) do
-    try do
-      current_riddle = %{riddle | register: riddle.register ++ [data]}
-      state = %{state | current_riddle: current_riddle}
-      {:reply, state, state}
-    rescue
-      e -> {:stop, "error of registering new register item: #{inspect(e)}", state, state}
-    end
+    current_riddle = %{riddle | register: riddle.register ++ [data]}
+    state = %{state | current_riddle: current_riddle}
+    {:reply, state, state}
   end
   def handle_call({:verdict, result_of_checking}, _caller, %__MODULE__{current_riddle: user_riddle} = state) do
-    try do
-      result = apply(user_riddle.__struct__, :verdict, [user_riddle, result_of_checking])
-      {:reply, result, state}
-    rescue
-      e -> {:stop, "error of calling `verdict/2`: #{inspect(e)}", state, state}
-    end
+    result = apply(user_riddle.__struct__, :verdict, [user_riddle, result_of_checking])
+    {:reply, result, state}
   end
   def handle_call({:lookup}, _caller, %__MODULE__{} = state), do: {:reply, state, state}
 
@@ -142,7 +125,7 @@ defmodule Sphynx.Clash do
   #  HELPERS
   # ====================
 
-  @spec is_equal_structs?(Any.t, Any.t) :: Boolean.t
+  @spec is_equal_structs?(Any.t, Any.t) :: boolean()
   defp is_equal_structs?(first, second) when is_map(first) and is_map(second) do
     Map.get(first, :__struct__) === Map.get(second, :__struct__)
   end
