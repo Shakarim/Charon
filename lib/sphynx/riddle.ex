@@ -1,6 +1,52 @@
 defmodule Sphynx.Riddle do
   @moduledoc ~S"""
-  Main module for making riddles
+  Module Riddle
+
+      defmodule NumberOfExploitsOfHercules do
+        use Sphynx.Riddle
+      end
+
+  All functions, which implemented in our example (`NumberOfExploitsOfHercules`) is a part of game lifecycle.
+
+  Roadmap of riddle looks like:
+    1. Creating the riddle. Calling `create/2` function with `context` (map) and `options` (keyword).
+    The `context` and `options` params passing through `context/1` and `init/1` functions (can be overriden).
+
+    2. Send riddle to game. When riddle were sent to game, riddle are makes. In this case, a call `make/1` occurs.
+
+    3. Processing the answer of user. In this point system calls `answer/1` and sends result of this call into
+    the `check/3`.
+
+    4. Result of `check/3` redirects to `verdict/2`. If result have specific pattern - next riddle will be maken,
+    otherwise - result will be returned to guessing man.
+
+  Generally: Need to define your riddle module (lets name it `NumberOfExploitsOfHercules`). Riddle module have to
+  use `Sphynx.Riddle` and implement his required functions.
+
+      defmodule NumberOfExploitsOfHercules do
+        use Sphynx.Riddle
+      end
+
+  What is inside:
+  Your module have to implement collbacks from `Sphynx.Riddle`. Some of collbacks are required, some - not. The some
+  function overridable and have default definition. There functions gonna be called by `Sphynx.Clash` in game progress.
+
+  Requireds:
+
+    * `answer/1` - function for returning correct answer to your question. And it's not static value necessarily.
+    This function receives the current riddle implementation as argument and you can use it for making a different
+    answers depending on situation.
+
+    * `check/3` - Function for checking and returnning result. It receives arguments:
+      1. Current module implementation.
+      2. Correct answer. This value - result of calling `answer/1`.
+      3. Answer for checking. It's data with user answer, accepts any type.
+
+    * `verdict/2` - Function for delivery of a verdict. Receives 2 argument:
+      1. Current module implementation.
+      2. Result of checking. That is data, which been returned by `check/3`
+
+  Optional:
   """
 
   @typedoc ~S"""
@@ -9,40 +55,14 @@ defmodule Sphynx.Riddle do
   @type user_module() :: %{
                            options: Keyword.t,
                            register: List.t,
-                           context: Any.t
+                           context: any()
                          }
-
-  @doc """
-  Returns init args
-  """
-  @callback init(Keyword.t) :: Keyword.t
-
-  @doc """
-  Returns context for riddle. This function will be
-  called when you try to create riddle.
-
-  Function passes context data and return context data.
-  """
-  @callback context(user_module()) :: Any.t
 
   @doc """
   Returns answer for riddle. Will be called when user
   gonna try to check his answer.
   """
-  @callback answer(user_module()) :: Any.t
-
-  @doc """
-  Pre-action of making a riddle. As example, it can be email
-  or SMS sending.
-
-  Args
-
-    * riddle - user module, `Sphynx.Riddle` implementation
-
-  Returns self
-
-  """
-  @callback make(user_module()) :: user_module()
+  @callback answer(user_module()) :: any()
 
   @doc ~S"""
   Checking answer for current riddle
@@ -54,7 +74,7 @@ defmodule Sphynx.Riddle do
     * answer - the received answer that we have to check
 
   """
-  @callback check(user_module(), Any.t, Any.t) :: Boolean.t
+  @callback check(user_module(), any(), any()) :: any()
 
   @doc ~S"""
   Handles result of checking answer to riddle
@@ -71,10 +91,7 @@ defmodule Sphynx.Riddle do
     * if result has another data - this another data will be returned
 
   """
-  @callback verdict(user_module(), Any.t) :: Any.t
-
-  @optional_callbacks init: 1,
-                      context: 1
+  @callback verdict(user_module(), any()) :: any()
 
   defmacro __using__(_args) do
     quote do
@@ -87,16 +104,38 @@ defmodule Sphynx.Riddle do
       @type t() :: %__MODULE__{
                      options: Keyword.t,
                      register: List.t,
-                     context: Any.t
+                     context: any()
                    }
 
-      @spec create(Any.t, Keyword.t) :: __MODULE__.t
+      @doc """
+      Returns init args
+      """
+      @spec init(Keyword.t) :: Keyword.t
+      def init(options), do: options
+
+      @doc """
+      Returns context for riddle. This function will be
+      called when you try to create riddle.
+
+      Function passes context data and return context data.
+      """
+      @spec context(map()) :: map()
+      def context(%{} = context), do: context
+
+      @spec make(__MODULE__.t) :: __MODULE__.t
+      def make(%__MODULE__{} = module), do: module
+
+      @spec create(any(), Keyword.t) :: __MODULE__.t
       def create(context \\ %{}, options \\ [])
       def create(context, options) do
         %__MODULE__{register: []}
         |> Sphynx.Riddle.put_options(options)
         |> Sphynx.Riddle.put_context(context)
       end
+
+      defoverridable init: 1,
+                     context: 1,
+                     make: 1
     end
   end
 
@@ -104,13 +143,9 @@ defmodule Sphynx.Riddle do
   @doc ~S"""
   Function for putting custom context data
   """
-  @spec put_context(user_module(), Any.t) :: user_module()
+  @spec put_context(user_module(), any()) :: user_module()
   def put_context(user_module, context) do
-    context = try do
-      apply(user_module.__struct__, :context, [context])
-    rescue
-      UndefinedFunctionError -> context
-    end
+    context = apply(user_module.__struct__, :context, [context])
     %{user_module | context: context}
   end
 
@@ -119,11 +154,7 @@ defmodule Sphynx.Riddle do
   """
   @spec put_options(user_module(), Map.t) :: user_module()
   def put_options(user_module, options) do
-    options = try do
-      apply(user_module.__struct__, :init, [options])
-    rescue
-      UndefinedFunctionError -> options
-    end
+    options = apply(user_module.__struct__, :init, [options])
     %{user_module | options: options}
   end
 end

@@ -36,9 +36,17 @@ defmodule Sphynx.Clash do
   #  CLIENT API
   # ====================
 
+  @doc ~S"""
+  Returns identity of clash by his pid
+  """
   @spec identity(pid()) :: Atom.t
   def identity(pid), do: GenServer.call(pid, {:identity})
 
+  @doc ~S"""
+  Makes a riddle and set it to an waiting state.
+
+
+  """
   @spec make_riddle(Atom.t, Any.t) :: :ok
   def make_riddle(pname, user_riddle) do
     updated_riddle = apply(user_riddle.__struct__, :make, [user_riddle])
