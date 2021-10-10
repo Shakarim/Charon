@@ -27,7 +27,7 @@ defmodule Sphynx.Moira do
   @doc ~S"""
   Starts new clash
   """
-  @spec start_clash(Atom.t, Keyword.t) :: pid()
+  @spec start_clash(atom(), Keyword.t) :: pid()
   def start_clash(moirae_pname, args \\ []) do
     args = args ++ [
       name: find_clean_clash_identity(moirae_pname)
@@ -38,7 +38,7 @@ defmodule Sphynx.Moira do
   @doc ~S"""
   Ends clash by his name
   """
-  @spec end_clash(Atom.t, Atom.t, Any.t) :: Any.t
+  @spec end_clash(atom(), atom(), Any.t) :: Any.t
   def end_clash(moirae_pname, clash_pname, return \\ :terminate_result) do
     find_pid_by_name(moirae_pname, clash_pname)
     |> case do
@@ -52,7 +52,7 @@ defmodule Sphynx.Moira do
   @doc ~S"""
   Returns list of clashes in this supervisor
   """
-  @spec get_clashes(Atom.t) :: List.t(Clash.t)
+  @spec get_clashes(atom()) :: list(Clash.t)
   def get_clashes(moirae_pname) do
     moirae_pname
     |> DynamicSupervisor.which_children()
@@ -64,7 +64,7 @@ defmodule Sphynx.Moira do
   #  PRIVATE HELPER FUNCTIONS
   # ===========================
 
-  @spec find_pid_by_name(Atom.t, Atom.t) :: pid() | nil
+  @spec find_pid_by_name(atom(), atom()) :: pid() | nil
   defp find_pid_by_name(moirae_pname, clash_pname) do
     moirae_pname
     |> DynamicSupervisor.which_children()
@@ -75,14 +75,14 @@ defmodule Sphynx.Moira do
        end
   end
 
-  @spec find_clean_clash_identity(Atom.t) :: Atom.t
+  @spec find_clean_clash_identity(atom()) :: atom()
   defp find_clean_clash_identity(moirae_pname) do
     childrens = DynamicSupervisor.which_children(moirae_pname)
     identity = generate_atom()
     if is_free_clash_identity?(identity, childrens), do: identity, else: find_clean_clash_identity(moirae_pname)
   end
 
-  @spec is_free_clash_identity?(Atom.t, List.t) :: Boolean.t
+  @spec is_free_clash_identity?(atom(), list()) :: boolean()
   defp is_free_clash_identity?(identity, childrens) do
     childrens
     |> Enum.find(fn {_, clash_pid, _, _} -> Clash.identity(clash_pid) === identity end)
